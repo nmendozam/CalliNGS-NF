@@ -199,12 +199,13 @@ process RNASEQ_GATK_RECALIBRATE {
   
   script: 
   sampleId = replicateId.replaceAll(/[12]$/,'')
+  def known_sites = variants_file.name != "NO_FILE" ? "--known-sites $variants_file" : ""
   """
   # Indel Realignment and Base Recalibration
   gatk BaseRecalibrator \
           -R $genome \
           -I $bam \
-          --known-sites $variants_file \
+          $known_sites \
           -O final.rnaseq.grp 
 
   gatk ApplyBQSR \
@@ -227,6 +228,7 @@ process RNASEQ_GATK_RECALIBRATE {
 process RNASEQ_CALL_VARIANTS {
   tag "$sampleId"
   label "mem_xlarge"
+  publishDir "$params.results/$sampleId" 
 
   input:
     path genome
